@@ -26,8 +26,7 @@ namespace DublicateFinder
                 for (int i = 0; i < fileArray.Length; i++)
                 {
                     if (!filePath.Equals(fileArray[i]) 
-                        && Path.GetExtension(filePath) == Path.GetExtension(fileArray[i])
-                        && File.Exists(filePath) && File.Exists(fileArray[i]))
+                        && Path.GetExtension(filePath) == Path.GetExtension(fileArray[i]))
                     {
                         if (CompareFiles(filePath, fileArray[i]))
                         {
@@ -44,25 +43,28 @@ namespace DublicateFinder
         static bool CompareFiles(string baseFile, string testFile)
         {
             var result = false;
-            byte[] testFileBytes = null;
             byte[] baseFileBytes = null;
+            byte[] testFileBytes = null;
 
-            using (var md5 = MD5.Create())
+            if (File.Exists(baseFile) && File.Exists(testFile))
             {
-                using (var stream = File.OpenRead(baseFile))
+                using (var md5 = MD5.Create())
                 {
-                    baseFileBytes = md5.ComputeHash(stream);
-                }
+                    using (var stream = File.OpenRead(baseFile))
+                    {
+                        baseFileBytes = md5.ComputeHash(stream);
+                    }
 
-                using (var stream = File.OpenRead(testFile))
-                {
-                    testFileBytes = md5.ComputeHash(stream);
+                    using (var stream = File.OpenRead(testFile))
+                    {
+                        testFileBytes = md5.ComputeHash(stream);
+                    }
                 }
             }
 
-            if (testFileBytes != null && baseFileBytes != null)
+            if (baseFileBytes != null && testFileBytes != null)
             {
-                result = testFileBytes.SequenceEqual(baseFileBytes);
+                result = baseFileBytes.SequenceEqual(testFileBytes);
             }
 
             return result;
